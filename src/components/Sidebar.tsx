@@ -4,7 +4,11 @@ import React from 'react';
 import { Search, MessageSquarePlus, Settings, Check, CheckCheck } from 'lucide-react';
 import { useChatStore, CURRENT_USER } from '@/lib/store';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onSelectConv?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ onSelectConv }) => {
   const { conversations, activeConversationId, setActiveConversation, searchQuery, setSearchQuery, messages } = useChatStore();
 
   const filteredConversations = conversations.filter((conv) => {
@@ -12,13 +16,19 @@ export const Sidebar: React.FC = () => {
     return titleMatch;
   });
 
+  const handleSelect = (convId: string) => {
+    setActiveConversation(convId);
+    if (onSelectConv) {
+      onSelectConv();
+    }
+  };
+
   return (
     <aside className="w-full md:w-[380px] flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col h-full text-slate-100">
       {/* Top Header */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="relative">
-            {/* User Avatar */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={CURRENT_USER.avatarUrl}
@@ -78,7 +88,7 @@ export const Sidebar: React.FC = () => {
             return (
               <button
                 key={conv.id}
-                onClick={() => setActiveConversation(conv.id)}
+                onClick={() => handleSelect(conv.id)}
                 className={`w-full p-3.5 flex items-center gap-3 transition-all text-left ${
                   isActive
                     ? 'bg-blue-600/10 border-l-4 border-blue-500'

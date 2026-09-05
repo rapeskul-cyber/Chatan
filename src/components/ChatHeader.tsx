@@ -14,12 +14,19 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onBackMobile }) => {
 
   if (!conversation) return null;
 
+  const handleBack = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onBackMobile) {
+      onBackMobile();
+    }
+  };
+
   return (
     <header className="h-16 px-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
       <div className="flex items-center gap-3">
         {onBackMobile && (
           <button
-            onClick={onBackMobile}
+            onClick={handleBack}
             className="md:hidden p-2 text-slate-300 hover:bg-slate-800 rounded-full"
           >
             <ArrowLeft className="w-5 h-5" />
