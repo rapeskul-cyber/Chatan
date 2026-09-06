@@ -6,10 +6,8 @@ import {
   Link as LinkIcon,
   Video,
   Music,
-  CheckCircle2,
   RefreshCw,
   AlertCircle,
-  Play,
   Film,
   Sparkles,
 } from 'lucide-react';
@@ -67,12 +65,26 @@ export function MediaDownloader() {
         fetchEndpoint = `/api/synox/download/aio-v2?url=${encodeURIComponent(url.trim())}`;
       }
 
-      const res = await fetch(fetchEndpoint);
-      if (!res.ok) {
-        throw new Error(`Gagal memproses tautan media (HTTP ${res.status})`);
+      const primaryRes = await fetch(fetchEndpoint);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let data: any = null;
+
+      if (primaryRes.ok) {
+        data = await primaryRes.json();
       }
 
-      const data = await res.json();
+      // If primary endpoint failed or returned no data, attempt Universal AIO fallback
+      if (!primaryRes.ok || !data || (data.status === false && platform !== 'generic')) {
+        const fallbackEndpoint = `/api/synox/download/aio-v2?url=${encodeURIComponent(url.trim())}`;
+        const fallbackRes = await fetch(fallbackEndpoint);
+        if (fallbackRes.ok) {
+          data = await fallbackRes.json();
+        }
+      }
+
+      if (!data) {
+        throw new Error(`Gagal memproses tautan media. Silakan periksa kembali URL.`);
+      }
 
       // Normalize Synox response structure
       const parsedDownloads: DownloadResult['downloads'] = [];

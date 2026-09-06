@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Copy, Check, RefreshCw, Sparkles, MessageSquare, Plus, Code } from 'lucide-react';
+import { Send, Bot, User, Copy, Check, RefreshCw, Plus, Code } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -112,20 +112,32 @@ export function ChatAssistant() {
       const data = await res.json();
 
       let replyText = 'Maaf, tidak dapat memproses respons saat ini.';
-      if (data && typeof data === 'string') {
-        replyText = data;
-      } else if (data && data.result) {
-        replyText = data.result;
-      } else if (data && data.response) {
-        replyText = data.response;
-      } else if (data && data.pesan) {
-        replyText = data.pesan;
-      } else if (data && data.message) {
-        replyText = typeof data.message === 'string' ? data.message : JSON.stringify(data.message);
-      } else if (data && data.data) {
-        replyText = typeof data.data === 'string' ? data.data : JSON.stringify(data.data);
-      } else if (data && data.error) {
-        replyText = `Error: ${data.message || data.error}`;
+
+      if (data) {
+        if (typeof data === 'string') {
+          replyText = data;
+        } else if (typeof data.result === 'string') {
+          replyText = data.result;
+        } else if (data.result && typeof data.result === 'object') {
+          replyText = data.result.reply || data.result.response || data.result.text || JSON.stringify(data.result);
+        } else if (typeof data.response === 'string') {
+          replyText = data.response;
+        } else if (typeof data.pesan === 'string') {
+          replyText = data.pesan;
+        } else if (data.message) {
+          replyText = typeof data.message === 'string' ? data.message : JSON.stringify(data.message);
+        } else if (data.data) {
+          replyText = typeof data.data === 'string' ? data.data : JSON.stringify(data.data);
+        } else if (data.error) {
+          replyText = `Error: ${typeof data.message === 'string' ? data.message : JSON.stringify(data.error)}`;
+        } else if (typeof data === 'object') {
+          replyText = JSON.stringify(data);
+        }
+      }
+
+      // Final safety check to strictly ensure replyText is always a string
+      if (typeof replyText !== 'string') {
+        replyText = JSON.stringify(replyText);
       }
 
       const assistantMsg: ChatMessage = {
@@ -137,7 +149,7 @@ export function ChatAssistant() {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err) {
+    } catch {
       const errorMsg: ChatMessage = {
         id: 'msg_err_' + Date.now(),
         sender: 'assistant',
@@ -218,13 +230,13 @@ export function ChatAssistant() {
                 <span>{msg.timestamp}</span>
               </div>
 
-              {/* Message Body with Code Block Formatting */}
+              {/* Message Body */}
               <div className="text-sm leading-relaxed whitespace-pre-wrap break-words font-sans">
-                {msg.text}
+                {String(msg.text)}
               </div>
 
               <button
-                onClick={() => copyToClipboard(msg.id, msg.text)}
+                onClick={() => copyToClipboard(msg.id, String(msg.text))}
                 className={`absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
                   msg.sender === 'user'
                     ? 'hover:bg-indigo-700 text-white'

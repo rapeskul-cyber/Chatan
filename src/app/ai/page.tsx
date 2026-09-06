@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bot, Sparkles, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { Sparkles, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import { ChatAssistant } from '@/components/ai/ChatAssistant';
 import { ImageGenerator } from '@/components/ai/ImageGenerator';
 
