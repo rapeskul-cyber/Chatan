@@ -1,51 +1,62 @@
-export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'read';
-export type MessageType = 'text' | 'image' | 'video' | 'audio' | 'document';
-
-export interface User {
+export interface ToolCategory {
   id: string;
-  username: string;
-  displayName: string;
-  avatarUrl: string;
-  about: string;
-  isOnline: boolean;
-  lastSeenAt: string;
+  name: string;
+  description: string;
+  icon: string;
+  badge?: string;
+  tools: ToolItem[];
 }
 
-export interface Reaction {
+export interface ToolItem {
   id: string;
-  messageId: string;
-  userId: string;
-  reactionCode: string; // e.g. '❤️', '🔥', '😂', '😮', '😢', '👍'
+  name: string;
+  description: string;
+  path: string;
+  category: string;
+  icon: string;
+  popular?: boolean;
+  tags: string[];
 }
 
-export interface Message {
+export interface AIChatMessage {
   id: string;
-  conversationId: string;
-  senderId: string;
-  parentMessageId?: string;
-  parentMessagePreview?: {
-    senderName: string;
-    content: string;
-  };
+  role: 'user' | 'assistant' | 'system';
   content: string;
-  mediaUrl?: string;
-  audioDuration?: number; // duration in seconds for voice notes
-  messageType: MessageType;
-  status: MessageStatus;
-  reactions: Reaction[];
-  createdAt: string;
-  isDeleted?: boolean;
+  timestamp: number;
+  model?: string;
 }
 
-export interface Conversation {
+export interface TempMailMessage {
   id: string;
-  type: 'DIRECT' | 'GROUP';
-  title?: string;
-  avatarUrl?: string;
-  participantIds: string[];
-  unreadCount: number;
-  lastMessage?: Message;
-  updatedAt: string;
-  isTyping?: boolean;
-  typingUser?: string;
+  sender: string;
+  subject: string;
+  snippet: string;
+  date: string;
+  body?: string;
+  otpCode?: string;
+}
+
+export interface NewsArticle {
+  title: string;
+  url: string;
+  image?: string;
+  time?: string;
+  category?: string;
+  source: string;
+  snippet?: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  image?: string;
+  question: string;
+  answer: string;
+  hint?: string;
+  category: 'tebak-gambar' | 'asah-otak' | 'caklontong' | 'tebak-kata';
+}
+
+export interface ToastNotification {
+  id: string;
+  type: 'success' | 'error' | 'info';
+  message: string;
 }
